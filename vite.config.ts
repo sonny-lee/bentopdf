@@ -26,6 +26,11 @@ function engineVersion(): string {
   }
 }
 
+const isSimpleMode =
+  process.env.SIMPLE_MODE === 'true' ||
+  process.env.TAURI_BUILD === 'true' ||
+  process.env.TAURI_ENV_PLATFORM !== undefined;
+
 const SUPPORTED_LANGUAGES = [
   'en',
   'ar',
@@ -419,6 +424,9 @@ function languageRedirectPlugin(): Plugin {
     transformIndexHtml: {
       order: 'post',
       handler() {
+        if (isSimpleMode) {
+          return [];
+        }
         const base = `${getBasePath()}/`;
         return [
           {
@@ -552,7 +560,7 @@ function flattenPagesPlugin(): Plugin {
         }
       }
 
-      if (process.env.SIMPLE_MODE === 'true' && bundle['simple-index.html']) {
+      if (isSimpleMode && bundle['simple-index.html']) {
         moves.push({ from: 'simple-index.html', to: 'index.html' });
       }
 
@@ -698,7 +706,7 @@ export default defineConfig(() => {
         partialDirectory: resolve(__dirname, 'src/partials'),
         context: {
           baseUrl: (process.env.BASE_URL || '/').replace(/\/?$/, '/'),
-          simpleMode: process.env.SIMPLE_MODE === 'true',
+          simpleMode: isSimpleMode,
           brandName: process.env.VITE_BRAND_NAME || '',
           brandLogo: process.env.VITE_BRAND_LOGO || '',
           footerText: process.env.VITE_FOOTER_TEXT || '',
@@ -746,7 +754,7 @@ export default defineConfig(() => {
       }),
     ],
     define: {
-      __SIMPLE_MODE__: JSON.stringify(process.env.SIMPLE_MODE === 'true'),
+      __SIMPLE_MODE__: JSON.stringify(isSimpleMode),
       __DISABLE_GITHUB_STARS__: JSON.stringify(
         process.env.DISABLE_GITHUB_STARS === 'true'
       ),
@@ -796,7 +804,7 @@ export default defineConfig(() => {
       rollupOptions: {
         input: {
           main:
-            process.env.SIMPLE_MODE === 'true'
+            isSimpleMode
               ? resolve(__dirname, 'simple-index.html')
               : resolve(__dirname, 'index.html'),
           about: resolve(__dirname, 'about.html'),

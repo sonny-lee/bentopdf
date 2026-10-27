@@ -23,7 +23,7 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "build:docker": "vite build",
-    "build:desktop": "node scripts/generate-blog.mjs && node scripts/generate-static-tool-links.mjs && vite build",
+    "build:desktop": "node scripts/generate-static-tool-links.mjs && vite build",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

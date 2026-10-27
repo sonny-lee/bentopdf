@@ -284,6 +284,15 @@ export const applyTranslations = (): void => {
 };
 
 export const rewriteLinks = (): void => {
+  if (
+    (typeof window !== 'undefined' &&
+      Boolean(
+        (window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__
+      )) ||
+    (typeof __SIMPLE_MODE__ !== 'undefined' && Boolean(__SIMPLE_MODE__))
+  ) {
+    return;
+  }
   const currentLang = getLanguageFromUrl();
   if (currentLang === 'en') return;
 

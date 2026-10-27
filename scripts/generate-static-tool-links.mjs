@@ -82,7 +82,7 @@ function generate() {
     for (const tool of tools) {
       toolCount++;
       lines.push(
-        `<a href="/${tool.slug}" class="block bg-gray-800 p-4 rounded-lg border border-gray-700 hover:bg-gray-700 transition-colors">` +
+        `<a href="/${tool.slug}.html" class="block bg-gray-800 p-4 rounded-lg border border-gray-700 hover:bg-gray-700 transition-colors">` +
           `<h3 class="text-white font-semibold mb-1">${escapeHtml(tool.name)}</h3>` +
           `<p class="text-gray-400 text-sm">${escapeHtml(tool.subtitle)}</p>` +
           `</a>`
