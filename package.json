@@ -23,6 +23,10 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "build:docker": "vite build",
+    "build:desktop": "node scripts/generate-blog.mjs && node scripts/generate-static-tool-links.mjs && vite build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
     "format": "prettier --write .",
     "release": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
@@ -43,6 +47,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
     "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.4.1",
     "@types/blob-stream": "^0.1.33",

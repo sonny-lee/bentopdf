@@ -1,0 +1,8 @@
+services:
+  tauri-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.tauri
+      target: tauri-builder
+    volumes:
+      - ./dist-desktop:/output

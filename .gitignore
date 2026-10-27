@@ -58,6 +58,11 @@ bentopdf-pymupdf-wasm/
 /blog/*.html
 !/blog/author-alam.html
 /src/partials/tool-links-static.html
+
+# Tauri build artifacts
+src-tauri/target/
+dist-desktop/
+
 /security-headers-docs.conf
 /dist-*.zip
 /docs/.vitepress/cache/

@@ -8,3 +8,5 @@ coverage
 *.md
 .vscode
 .idea
+src-tauri/target
+dist-desktop
