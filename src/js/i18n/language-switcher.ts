@@ -2,12 +2,13 @@ import {
   supportedLanguages,
   languageNames,
   getLanguageFromUrl,
+  getPreferredLanguage,
   changeLanguage,
   t,
 } from './i18n';
 
 export const createLanguageSwitcher = (): HTMLElement => {
-  const currentLang = getLanguageFromUrl();
+  const currentLang = getPreferredLanguage();
 
   const container = document.createElement('div');
   container.className = 'relative';
@@ -167,6 +168,12 @@ export const createLanguageSwitcher = (): HTMLElement => {
 };
 
 export const injectLanguageSwitcher = (): void => {
+  const navContainer = document.getElementById('simple-nav-lang-switcher');
+  if (navContainer && !navContainer.hasChildNodes()) {
+    const switcher = createLanguageSwitcher();
+    navContainer.appendChild(switcher);
+  }
+
   const simpleModeContainer = document.getElementById(
     'simple-mode-language-switcher'
   );

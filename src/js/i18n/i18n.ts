@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 import HttpBackend from 'i18next-http-backend';
-import { setStoredItem } from '../utils/safe-storage.js';
+import { getStoredItem, setStoredItem } from '../utils/safe-storage.js';
 import { fillPlaceholders } from './placeholders.js';
 import enCommon from '../../../public/locales/en/common.json';
 import enTools from '../../../public/locales/en/tools.json';
@@ -88,10 +88,42 @@ export const getLanguageFromUrl = (): SupportedLanguage => {
 
 export const LANGUAGE_CHOICE_KEY = 'bentopdf-language';
 
+export const getPreferredLanguage = (): SupportedLanguage => {
+  const fromUrl = getLanguageFromUrl();
+  if (fromUrl !== 'en') return fromUrl;
+
+  try {
+    const stored = getStoredItem(LANGUAGE_CHOICE_KEY);
+    if (stored && supportedLanguages.includes(stored as SupportedLanguage)) {
+      return stored as SupportedLanguage;
+    }
+  } catch {}
+
+  try {
+    const preferred =
+      typeof navigator !== 'undefined'
+        ? navigator.languages || [navigator.language]
+        : [];
+    for (let i = 0; i < preferred.length; i++) {
+      const code = preferred[i];
+      if (!code) continue;
+      const lower = code.toLowerCase();
+      if (/^zh-(tw|hk|mo|hant)/.test(lower)) return 'zh-TW';
+      if (/^zh/.test(lower)) return 'zh';
+      const primary = lower.split('-')[0];
+      if (supportedLanguages.includes(primary as SupportedLanguage)) {
+        return primary as SupportedLanguage;
+      }
+    }
+  } catch {}
+
+  return 'en';
+};
+
 let initPromise: Promise<typeof i18next> | null = null;
 
 const runInit = async (): Promise<typeof i18next> => {
-  const currentLang = getLanguageFromUrl();
+  const currentLang = getPreferredLanguage();
 
   await i18next.use(HttpBackend).init({
     lng: currentLang,
@@ -198,6 +230,17 @@ export const trHtml = (
 export const changeLanguage = (lang: SupportedLanguage): void => {
   if (!supportedLanguages.includes(lang)) return;
   setStoredItem(LANGUAGE_CHOICE_KEY, lang);
+
+  if (
+    (typeof window !== 'undefined' &&
+      Boolean(
+        (window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__
+      )) ||
+    (typeof __SIMPLE_MODE__ !== 'undefined' && Boolean(__SIMPLE_MODE__))
+  ) {
+    window.location.reload();
+    return;
+  }
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
   let relativePath = window.location.pathname;

@@ -8,6 +8,7 @@ export {
   applyTranslations,
   rewriteLinks,
   getLanguageFromUrl,
+  getPreferredLanguage,
   supportedLanguages,
   languageNames,
 } from './i18n';
