@@ -55,9 +55,16 @@ jobs:
           tagName: app-v__VERSION__
           releaseName: 'BentoPDF Desktop v__VERSION__'
           releaseBody: 'See the assets to download BentoPDF desktop version for your platform.'
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
+
+      - name: Add Job Summary
+        if: always()
+        run: |
+          echo "## 🚀 BentoPDF Desktop Release" >> $GITHUB_STEP_SUMMARY
+          echo "完整安裝檔已發布至 GitHub Releases：" >> $GITHUB_STEP_SUMMARY
+          echo "- 📦 **[前往 GitHub Releases 下載所有平台安裝檔](https://github.com/sonny-lee/bentopdf/releases)**" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Desktop Artifacts
         uses: actions/upload-artifact@v4
