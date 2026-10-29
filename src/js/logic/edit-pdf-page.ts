@@ -7,11 +7,9 @@ import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import { getEditorDisabledCategories } from '../utils/disabled-tools.js';
 import { editorFontFallback } from '../config/editor-fonts.js';
 import { needsFontEmbedding } from '../utils/freetext-script.js';
+import { isDesktopApp } from '../utils/helpers.js';
 
-const embedPdfWasmUrl = new URL(
-  'bentopdf-pdfium/editcore.wasm',
-  import.meta.url
-).href;
+import embedPdfWasmUrl from 'bentopdf-pdfium/editcore.wasm?url';
 
 import type { EmbedPdfContainer } from 'bentopdf-viewer';
 import type {
@@ -327,12 +325,17 @@ async function handleFiles(files: FileList) {
       pdfWrapper.classList.remove('hidden');
 
       const { default: EmbedPDF } = await import('bentopdf-viewer');
+      const isDesktop = isDesktopApp();
+
+      const base = window.location.origin || window.location.href;
+      const resolvedWasmUrl = new URL(embedPdfWasmUrl, base).href;
+
       viewerInstance = EmbedPDF.init({
         disabledCategories: getEditorDisabledCategories(),
         type: 'container',
         target: pdfContainer,
-        worker: true,
-        wasmUrl: embedPdfWasmUrl,
+        worker: !isDesktop,
+        wasmUrl: resolvedWasmUrl,
         fontFallback: editorFontFallback,
         export: {
           defaultFileName: firstFile.name,

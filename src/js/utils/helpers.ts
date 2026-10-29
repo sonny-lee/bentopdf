@@ -473,3 +473,16 @@ export function getCleanPdfFilename(filename: string): string {
   }
   return clean;
 }
+
+/**
+ * Detects whether the app is currently running inside the desktop (Tauri) environment.
+ */
+export function isDesktopApp(): boolean {
+  if (typeof window === 'undefined') return false;
+  return Boolean(
+    (window as any).__TAURI_INTERNALS__ ||
+      (window as any).__TAURI__ ||
+      window.location?.protocol === 'tauri:' ||
+      window.location?.hostname === 'tauri.localhost'
+  );
+}

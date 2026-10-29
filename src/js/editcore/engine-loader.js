@@ -1,4 +1,5 @@
 import createModule from 'bentopdf-pdfium';
+import embedPdfWasmUrl from 'bentopdf-pdfium/editcore.wasm?url';
 
 const inBrowser = typeof window !== 'undefined';
 
@@ -11,7 +12,8 @@ try {
 
 function resolveWasmUrl() {
   if (inBrowser) {
-    const url = new URL('bentopdf-pdfium/editcore.wasm', import.meta.url);
+    const base = window.location.origin || window.location.href;
+    const url = new URL(embedPdfWasmUrl, base);
     if (import.meta.env?.DEV) {
       url.searchParams.set('v', ENGINE_VERSION);
     }

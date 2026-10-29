@@ -1613,4 +1613,34 @@ const init = async () => {
   rewriteLinks();
 };
 
+if (typeof window !== 'undefined') {
+  // Prevent default file navigation when dragging and dropping files outside active dropzones,
+  // while preserving native text selection drag/drop in form inputs.
+  window.addEventListener(
+    'dragover',
+    (e) => {
+      if (e.dataTransfer?.types?.includes('Files')) {
+        const target = e.target as HTMLElement | null;
+        if (!target?.closest('#drop-zone, [data-drop-zone]')) {
+          e.dataTransfer.dropEffect = 'none';
+        }
+        e.preventDefault();
+      }
+    },
+    false
+  );
+  window.addEventListener(
+    'drop',
+    (e) => {
+      if (e.dataTransfer?.types?.includes('Files')) {
+        const target = e.target as HTMLElement | null;
+        if (!target?.closest('#drop-zone, [data-drop-zone]')) {
+          e.preventDefault();
+        }
+      }
+    },
+    false
+  );
+}
+
 window.addEventListener('load', init);

@@ -19,11 +19,12 @@
         "minWidth": 900,
         "minHeight": 650,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "dragDropEnabled": false
       }
     ],
     "security": {
-      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: tauri: asset:; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline' data:; font-src 'self' data:; connect-src 'self' data: blob: https:; worker-src 'self' blob:;"
+      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: tauri: asset:; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' data:; font-src 'self' data:; connect-src 'self' data: blob: https: tauri: asset:; worker-src 'self' blob: tauri: asset:;"
     }
   },
   "bundle": {
