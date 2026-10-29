@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import {
   supportedLanguages,
   languageNames,
@@ -8,7 +9,11 @@ import {
 } from './i18n';
 
 export const createLanguageSwitcher = (): HTMLElement => {
-  const currentLang = getPreferredLanguage();
+  const currentLang =
+    ((i18next.language as SupportedLanguage) &&
+      supportedLanguages.includes(i18next.language as SupportedLanguage) &&
+      (i18next.language as SupportedLanguage)) ||
+    getPreferredLanguage();
 
   const container = document.createElement('div');
   container.className = 'relative';

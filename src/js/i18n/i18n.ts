@@ -88,7 +88,75 @@ export const getLanguageFromUrl = (): SupportedLanguage => {
 
 export const LANGUAGE_CHOICE_KEY = 'bentopdf-language';
 
+let detectedLanguage: SupportedLanguage | null = null;
+
+export const mapLocaleToSupportedLanguage = (
+  code: string
+): SupportedLanguage | null => {
+  if (!code) return null;
+  const lower = code.toLowerCase().replace(/_/g, '-');
+  if (/^zh-(tw|hk|mo|hant)/.test(lower)) return 'zh-TW';
+  if (/^zh/.test(lower)) return 'zh';
+  const primary = lower.split('-')[0];
+  if (supportedLanguages.includes(primary as SupportedLanguage)) {
+    return primary as SupportedLanguage;
+  }
+  return null;
+};
+
+export const detectSystemLanguage = async (): Promise<SupportedLanguage> => {
+  if (detectedLanguage) return detectedLanguage;
+
+  // 1. Check if user already has an explicit saved preference in localStorage
+  try {
+    const stored = getStoredItem(LANGUAGE_CHOICE_KEY);
+    if (stored && supportedLanguages.includes(stored as SupportedLanguage)) {
+      detectedLanguage = stored as SupportedLanguage;
+      return detectedLanguage;
+    }
+  } catch {}
+
+  // 2. Query Tauri native backend for OS locale (macOS AppleLocale, Windows, Linux)
+  try {
+    const tauri = (window as any).__TAURI__;
+    const internals = (window as any).__TAURI_INTERNALS__;
+    let osLocale: string | null = null;
+    if (tauri?.core?.invoke) {
+      osLocale = await tauri.core.invoke('get_system_locale');
+    } else if (internals?.invoke) {
+      osLocale = await internals.invoke('get_system_locale');
+    }
+    if (osLocale) {
+      const mapped = mapLocaleToSupportedLanguage(osLocale);
+      if (mapped) {
+        detectedLanguage = mapped;
+        return detectedLanguage;
+      }
+    }
+  } catch {}
+
+  // 3. Check browser/webview navigator.languages (which matches OS language when CFBundleLocalizations is configured)
+  try {
+    const preferred =
+      typeof navigator !== 'undefined'
+        ? navigator.languages || [navigator.language]
+        : [];
+    for (let i = 0; i < preferred.length; i++) {
+      const mapped = mapLocaleToSupportedLanguage(preferred[i]);
+      if (mapped) {
+        detectedLanguage = mapped;
+        return detectedLanguage;
+      }
+    }
+  } catch {}
+
+  detectedLanguage = 'en';
+  return detectedLanguage;
+};
+
 export const getPreferredLanguage = (): SupportedLanguage => {
+  if (detectedLanguage) return detectedLanguage;
+
   const fromUrl = getLanguageFromUrl();
   if (fromUrl !== 'en') return fromUrl;
 
@@ -105,15 +173,8 @@ export const getPreferredLanguage = (): SupportedLanguage => {
         ? navigator.languages || [navigator.language]
         : [];
     for (let i = 0; i < preferred.length; i++) {
-      const code = preferred[i];
-      if (!code) continue;
-      const lower = code.toLowerCase();
-      if (/^zh-(tw|hk|mo|hant)/.test(lower)) return 'zh-TW';
-      if (/^zh/.test(lower)) return 'zh';
-      const primary = lower.split('-')[0];
-      if (supportedLanguages.includes(primary as SupportedLanguage)) {
-        return primary as SupportedLanguage;
-      }
+      const mapped = mapLocaleToSupportedLanguage(preferred[i]);
+      if (mapped) return mapped;
     }
   } catch {}
 
@@ -123,7 +184,7 @@ export const getPreferredLanguage = (): SupportedLanguage => {
 let initPromise: Promise<typeof i18next> | null = null;
 
 const runInit = async (): Promise<typeof i18next> => {
-  const currentLang = getPreferredLanguage();
+  const currentLang = await detectSystemLanguage();
 
   await i18next.use(HttpBackend).init({
     lng: currentLang,
@@ -229,6 +290,7 @@ export const trHtml = (
 
 export const changeLanguage = (lang: SupportedLanguage): void => {
   if (!supportedLanguages.includes(lang)) return;
+  detectedLanguage = lang;
   setStoredItem(LANGUAGE_CHOICE_KEY, lang);
 
   if (

@@ -9,6 +9,8 @@ export {
   rewriteLinks,
   getLanguageFromUrl,
   getPreferredLanguage,
+  detectSystemLanguage,
+  mapLocaleToSupportedLanguage,
   supportedLanguages,
   languageNames,
 } from './i18n';
